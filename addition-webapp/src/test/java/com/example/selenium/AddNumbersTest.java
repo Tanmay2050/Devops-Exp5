@@ -1,45 +1,71 @@
+package com.example.selenium;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.Assert;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.time.Duration;
+
+import static org.testng.Assert.assertEquals;
+
 public class AddNumbersTest {
 
-    WebDriver driver;
+    private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeTest
     public void setup() {
-        driver = new ChromeDriver();
+        // Setup Chrome in headless mode for Jenkins
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Run without GUI
+        options.addArguments("--no-sandbox"); // Needed for some Linux environments
+        options.addArguments("--disable-dev-shm-usage"); // Prevent crashes in Docker/Jenkins
+        driver = new ChromeDriver(options);
 
-        // Correct file path for Jenkins
-        String filePath = "file:///" + System.getProperty("user.dir") + "/addition-webapp/src/main/webapp/index.html";
+        // Initialize explicit wait
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // Get the local HTML file path
+        String filePath = "file:///" + System.getProperty("user.dir")
+                + "/addition-webapp/src/main/webapp/index.html";
 
         driver.get(filePath);
+
+        // Wait for the first input element to appear
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("num1")));
     }
 
     @Test
     public void testAddition() {
+        // Find input fields
+        WebElement num1 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("num1")));
+        WebElement num2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("num2")));
+        WebElement addBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("addBtn")));
+        WebElement result = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("result")));
 
-        WebElement num1 = driver.findElement(By.id("num1"));
-        WebElement num2 = driver.findElement(By.id("num2"));
-        WebElement button = driver.findElement(By.tagName("button"));
-
+        // Enter values
         num1.sendKeys("5");
-        num2.sendKeys("7");
+        num2.sendKeys("3");
 
-        button.click();
+        // Click Add button
+        addBtn.click();
 
-        String result = driver.findElement(By.id("result")).getText();
-
-        Assert.assertEquals(result, "Result: 12");
+        // Verify result
+        String sum = result.getText();
+        assertEquals(sum, "8", "Addition result is incorrect!");
     }
 
     @AfterTest
-    public void closeBrowser() {
-        driver.quit();
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }

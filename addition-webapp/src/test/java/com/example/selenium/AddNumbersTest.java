@@ -14,12 +14,16 @@ public class AddNumbersTest {
     @BeforeTest
     public void setup() {
         driver = new ChromeDriver();
-        driver.get("file:///" + System.getProperty("user.dir") + "/addition-webapp/src/main/webapp/index.html");
+
+        // Correct file path for Jenkins
+        String filePath = "file:///" + System.getProperty("user.dir") + "/addition-webapp/src/main/webapp/index.html";
+
         driver.get(filePath);
     }
 
     @Test
     public void testAddition() {
+
         WebElement num1 = driver.findElement(By.id("num1"));
         WebElement num2 = driver.findElement(By.id("num2"));
         WebElement button = driver.findElement(By.tagName("button"));
@@ -28,13 +32,6 @@ public class AddNumbersTest {
         num2.sendKeys("7");
 
         button.click();
-
-        // Wait for 10 seconds
-        try {
-            Thread.sleep(10000); // 5000 milliseconds = 5 seconds
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         String result = driver.findElement(By.id("result")).getText();
 
@@ -45,6 +42,4 @@ public class AddNumbersTest {
     public void closeBrowser() {
         driver.quit();
     }
-
 }
-

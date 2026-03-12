@@ -15,6 +15,7 @@ public class AddNumbersTest {
     public void setup() {
         driver = new ChromeDriver();
         driver.get("file:///" + System.getProperty("user.dir") + "/addition-webapp/src/main/webapp/index.html");
+        driver.get(filePath);
     }
 
     @Test
@@ -46,3 +47,4 @@ public class AddNumbersTest {
     }
 
 }
+
